@@ -1,6 +1,6 @@
 # Echelon: Tier Chess
 
-![Echelon Tier Chess Banner](https://via.placeholder.com/800x200/000000/FFFFFF?text=Echelon:+Tier+Chess) <!-- Replace with actual banner image if available -->
+# ![Echelon Tier Chess Banner](https://via.placeholder.com/800x200/000000/FFFFFF?text=Echelon:+Tier+Chess) <!-- Replace with actual banner image if available -->
 
 A tactical evolution of classic chess, where players secretly upgrade pieces using limited tokens, adding layers of depth, deception, and uncertainty. You never know which piece might have the hidden edge.
 
