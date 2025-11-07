@@ -84,7 +84,7 @@ Visual diagrams (conceptual):
 - Same class, different tier → Higher tier wins.
 - Different class → Standard hierarchy (tiers irrelevant).
 
-For detailed diagrams, see the [GDD PDF](Echelon%20Tier%20Chess%20-%20GDD.pdf).
+For detailed diagrams, see the [GDD PDF]([Echelon%20Tier%20Chess%20-%20GDD.pdf](https://drive.google.com/file/d/1Gvqs1noBUObRnAeLh6HT_2tsgg-ojOzn/view?usp=sharing)).
 
 ## 🎨 Game Art-Style References
 
@@ -111,7 +111,7 @@ This repository hosts the design and development of *Echelon: Tier Chess*. Curre
    git clone https://github.com/yourusername/echelon-tier-chess.git
    cd echelon-tier-chess
    ```
-2. Review the [GDD PDF](Echelon%20Tier%20Chess%20-%20GDD.pdf) for full rules.
+2. Review the [GDD PDF]([Echelon%20Tier%20Chess%20-%20GDD.pdf](https://drive.google.com/file/d/1Gvqs1noBUObRnAeLh6HT_2tsgg-ojOzn/view?usp=sharing)) for full rules.
 
 ### Usage
 - **Playtesting**: Prototype manually or use a chess engine mod (TBD).
