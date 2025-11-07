@@ -84,7 +84,7 @@ Visual diagrams (conceptual):
 - Same class, different tier → Higher tier wins.
 - Different class → Standard hierarchy (tiers irrelevant).
 
-For detailed diagrams, see the [GDD PDF]([Echelon%20Tier%20Chess%20-%20GDD.pdf](https://drive.google.com/file/d/1Gvqs1noBUObRnAeLh6HT_2tsgg-ojOzn/view?usp=sharing)).
+For detailed diagrams, see the [GDD PDF].
 
 ## 🎨 Game Art-Style References
 
@@ -105,35 +105,14 @@ This repository hosts the design and development of *Echelon: Tier Chess*. Curre
 ### Prerequisites
 - None (design phase). For future implementation: Unity, Godot, or Python (with libraries like `chess` for prototyping).
 
-### Installation
-1. Clone the repo:
-   ```
-   git clone https://github.com/yourusername/echelon-tier-chess.git
-   cd echelon-tier-chess
-   ```
-2. Review the [GDD PDF]([Echelon%20Tier%20Chess%20-%20GDD.pdf](https://drive.google.com/file/d/1Gvqs1noBUObRnAeLh6HT_2tsgg-ojOzn/view?usp=sharing)) for full rules.
-
-### Usage
-- **Playtesting**: Prototype manually or use a chess engine mod (TBD).
-- **Development**: See `/src` for code (coming soon). Focus: Hidden tiers, token UI, clash resolution.
-
-## 🤝 Contributing
-Contributions welcome! 
-- Fork the repo.
-- Create a feature branch (`git checkout -b feature/amazing-idea`).
-- Commit changes (`git commit -m 'Add tier UI'`).
-- Push and open a PR.
-
-Ideas: Balance tokens, add AI, mobile app.
-
 ## 📄 License
-This project is under the MIT License. See [LICENSE](LICENSE) for details.
+This project is under the MIT License. See [LICENSE] for details.
 
 ## 🙏 Acknowledgments
 - Built on classic chess foundations.
 - Art inspirations: Hollow Knight, indie tactical games.
 
-For questions or playtesting, contact Cristo Rey Gulle Jr. at [your-email@example.com].
+For questions or playtesting, contact Cristo Rey Gulle Jr. at [reygulle714@gmail.com].
 
 ---
 
