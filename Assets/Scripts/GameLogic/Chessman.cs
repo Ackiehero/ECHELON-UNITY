@@ -16,12 +16,27 @@ public class Chessman : MonoBehaviour
     // References for all the sprites that the chessman can be;
     public Sprite b_king, w_king, b_queen, w_queen, b_rook, w_rook, b_bishop, w_bishop, b_knight, w_knight, b_pawn, w_pawn;
 
-    // Declaration for the controller reference (this fixes CS0103)
-    private GameController controller;
+    // Fixed: Direct reference to Game (no GameController needed)
+    private Game game;
 
     public void Activate()
     {
-        controller = GameObject.FindGameObjectWithTag("GameController").GetComponent<GameController>();
+        // Fixed: Fetch GameObject, then directly get Game component (no GameController)
+        GameObject controllerGO = GameObject.FindGameObjectWithTag("GameController");
+        if (controllerGO == null)
+        {
+            Debug.LogError("GameController GameObject not found! Create one and tag it 'GameController'.");
+            return;
+        }
+        game = controllerGO.GetComponent<Game>();
+        if (game == null)
+        {
+            Debug.LogError("Game component missing on 'GameController' GameObject! Attach Game.cs.");
+            return;
+        }
+
+        // Set player color based on name (for captures)
+        player = this.name.StartsWith("w") ? "white" : "black";
 
         // Take the instantiated gameobject and set the position of the chessman;
         SetCoordinates();
@@ -99,5 +114,228 @@ public class Chessman : MonoBehaviour
     public void SetYBoard(int y)
     {
         yBoard = y;
+    }
+
+    private void OnMouseUp()
+    {
+        Debug.Log($"Clicked on {this.name} at ({xBoard},{yBoard})!");  // Debug: Confirm click
+
+        DestroyMovePlates();
+        InitiateMoveplates(); 
+    }
+
+    public void DestroyMovePlates()
+    {
+        // Fixed: Use plural FindGameObjectsWithTag for array; consistent variable 'movePlates'
+        GameObject[] movePlates = GameObject.FindGameObjectsWithTag("MovePlate");
+        for (int i = 0; i < movePlates.Length; i++)
+        {
+            Destroy(movePlates[i]);
+        }
+    }
+
+    public void InitiateMoveplates()
+    {
+        switch (this.name)
+        {
+            case "b_queen":
+            case "w_queen":
+                LineMovePlate(1, 0);
+                LineMovePlate(0, 1);
+                LineMovePlate(1, 1);
+                LineMovePlate(-1, 0);
+                LineMovePlate(0, -1);
+                LineMovePlate(-1, -1);
+                LineMovePlate(-1, 1);
+                LineMovePlate(1, -1);
+                break;
+            case "b_knight":
+            case "w_knight":
+                LMovePlate();
+                break;
+            case "b_bishop":
+            case "w_bishop":
+                LineMovePlate(1,1);
+                LineMovePlate(1, -1);
+                LineMovePlate(-1, 1);
+                LineMovePlate(-1, -1);
+                break;
+            case "b_king":
+            case "w_king":
+                SurroundMovePlate();
+                break;
+            case "b_rook":
+            case "w_rook":
+                LineMovePlate(1, 0);
+                LineMovePlate(0, 1); 
+                LineMovePlate(-1, 0); 
+                LineMovePlate(0, -1); 
+                break;    
+            case "b_pawn":
+                PawnMovePlate(xBoard, yBoard - 1);
+                break;
+            case "w_pawn":
+                PawnMovePlate(xBoard, yBoard + 1);
+                break;
+        }
+    }
+
+    public void LineMovePlate(int xIncrement, int yIncrement)
+    {
+        // Fixed: Direct use of 'game' reference (no need for gameObject.GetComponent)
+        if (game == null)
+        {
+            Debug.LogError("Game reference lost!");
+            return;
+        }
+
+        int x = xBoard + xIncrement;
+        int y = yBoard + yIncrement;
+
+        while (game.PositionOnBoard(x, y) && game.GetPosition(x, y) == null)
+        {
+            MovePlateSpawn(x, y);
+            x += xIncrement;
+            y += yIncrement; 
+        }
+
+        if (game.PositionOnBoard(x, y) && game.GetPosition(x, y) != null)
+        {
+            Chessman target = game.GetPosition(x, y).GetComponent<Chessman>();
+            if (target != null && target.player != player)
+            {
+                MovePlateAttackSpawn(x, y);
+            }
+        }
+    }
+
+    public void LMovePlate()
+    {
+        PointMovePlate(xBoard + 1, yBoard + 2);
+        PointMovePlate(xBoard - 1, yBoard + 2);
+        PointMovePlate(xBoard + 2, yBoard + 1);
+        PointMovePlate(xBoard + 2, yBoard - 1);
+        PointMovePlate(xBoard + 1, yBoard - 1);
+        PointMovePlate(xBoard - 1, yBoard - 2);
+        PointMovePlate(xBoard - 2, yBoard + 1);
+        PointMovePlate(xBoard - 2, yBoard - 1);
+    }
+
+    public void SurroundMovePlate()
+    {
+        PointMovePlate(xBoard, yBoard + 1);
+        PointMovePlate(xBoard, yBoard - 1);
+        PointMovePlate(xBoard - 1, yBoard - 1);
+        PointMovePlate(xBoard - 1, yBoard);
+        PointMovePlate(xBoard - 1, yBoard + 1);
+        PointMovePlate(xBoard + 1, yBoard - 1);
+        PointMovePlate(xBoard + 1, yBoard);
+        PointMovePlate(xBoard + 1, yBoard + 1);
+    }
+
+    public void PointMovePlate(int x, int y)
+    {
+        // Fixed: Direct use of 'game' reference
+        if (game == null)
+        {
+            Debug.LogError("Game reference lost!");
+            return;
+        }
+
+        if (game.PositionOnBoard(x, y))
+        {
+            GameObject cp = game.GetPosition(x, y);
+
+            if (cp == null)
+            {
+                MovePlateSpawn(x, y);
+            } 
+            else 
+            {
+                Chessman target = cp.GetComponent<Chessman>();
+                if (target != null && target.player != player)
+                {
+                    MovePlateAttackSpawn(x, y);
+                }
+            }
+        }
+    }
+
+    public void PawnMovePlate(int x, int y)
+    {
+        // Fixed: Direct use of 'game' reference
+        if (game == null)
+        {
+            Debug.LogError("Game reference lost!");
+            return;
+        }
+
+        if (game.PositionOnBoard(x, y))
+        {
+            if (game.GetPosition(x, y) == null)
+            {
+                MovePlateSpawn(x, y);
+            }
+            if (game.PositionOnBoard(x + 1, y) && game.GetPosition(x + 1, y) != null)
+            {
+                Chessman target = game.GetPosition(x + 1, y).GetComponent<Chessman>();
+                if (target != null && target.player != player)
+                {
+                    MovePlateAttackSpawn(x + 1, y);
+                }
+            }
+
+            if (game.PositionOnBoard(x - 1, y) && game.GetPosition(x - 1, y) != null)
+            {
+                Chessman target = game.GetPosition(x - 1, y).GetComponent<Chessman>();
+                if (target != null && target.player != player)
+                {
+                    MovePlateAttackSpawn(x - 1, y);
+                }
+            }
+        }
+    }
+
+    public void MovePlateSpawn(int matrixX, int matrixY)
+    {
+        float tileSizeX = ((1550f / 100f) * 0.7f) / 8f;
+        float tileSizeY = ((1550f / 100f) * 0.7f) / 8f;
+
+        float padding = 0.9f;
+        tileSizeX *= padding;
+        tileSizeY *= padding;
+        
+        float posX = (matrixX - 3.5f) * tileSizeX;
+        float posY = (matrixY - 3.5f) * tileSizeY;
+
+        // For Display on Unity Game Screen
+        GameObject mp = Instantiate(movePlate, new Vector3(posX, posY, -3.0f), Quaternion.identity);
+
+        // To keep track inside script
+        MovePlate mpScript = mp.GetComponent<MovePlate>();
+        mpScript.SetReference(gameObject);
+        mpScript.SetCoordinates(matrixX, matrixY);  
+    }
+
+    public void MovePlateAttackSpawn(int matrixX, int matrixY)
+    {
+        float tileSizeX = ((1550f / 100f) * 0.7f) / 8f;
+        float tileSizeY = ((1550f / 100f) * 0.7f) / 8f;
+
+        float padding = 0.9f;
+        tileSizeX *= padding;
+        tileSizeY *= padding;
+        
+        float posX = (matrixX - 3.5f) * tileSizeX;
+        float posY = (matrixY - 3.5f) * tileSizeY;
+
+        // For Display on Unity Game Screen
+        GameObject mp = Instantiate(movePlate, new Vector3(posX, posY, -3.0f), Quaternion.identity);
+
+        // To keep track inside script
+        MovePlate mpScript = mp.GetComponent<MovePlate>();
+        mpScript.attack = true;
+        mpScript.SetReference(gameObject);
+        mpScript.SetCoordinates(matrixX, matrixY);  
     }
 }
