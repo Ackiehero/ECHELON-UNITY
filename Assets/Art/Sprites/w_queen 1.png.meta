@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: da5967222f437e24783554441256c595
+guid: 4c4a09a3bf8dacd4d9c06cad61fa3533
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -1806120567925726307
-    second: gamelog_bg_0
+      213: 6539967876523095328
+    second: w_queen 1_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -126,23 +126,23 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: gamelog_bg_0
+      name: w_queen 1_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 1488
-        height: 526
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        width: 35
+        height: 64
+      alignment: 9
+      pivot: {x: 0.5, y: 0.15}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: d93a247a9ee5fe6e0800000000000000
-      internalID: -1806120567925726307
+      spriteID: 025ff9a2222a2ca50800000000000000
+      internalID: 6539967876523095328
       vertices: []
       indices: 
       edges: []
@@ -151,7 +151,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: dea2afda77fec524e8a13baf1e2741f8
     internalID: 0
     vertices: []
     indices: 
@@ -161,7 +161,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      gamelog_bg_0: -1806120567925726307
+      w_queen 1_0: 6539967876523095328
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

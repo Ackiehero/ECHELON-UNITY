@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: da5967222f437e24783554441256c595
+guid: 6b9236805cd21f248b4c4269add392b2
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -1806120567925726307
-    second: gamelog_bg_0
+      213: -6972819382123031918
+    second: moveplate_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -126,13 +126,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: gamelog_bg_0
+      name: moveplate_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 1488
-        height: 526
+        width: 178
+        height: 178
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -141,8 +141,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: d93a247a9ee5fe6e0800000000000000
-      internalID: -1806120567925726307
+      spriteID: 292199d27b19b3f90800000000000000
+      internalID: -6972819382123031918
       vertices: []
       indices: 
       edges: []
@@ -161,7 +161,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      gamelog_bg_0: -1806120567925726307
+      moveplate_0: -6972819382123031918
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

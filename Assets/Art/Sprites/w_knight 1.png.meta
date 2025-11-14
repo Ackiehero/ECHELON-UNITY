@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: da5967222f437e24783554441256c595
+guid: 5655a5145bcff3e498c8ff429803c749
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -1806120567925726307
-    second: gamelog_bg_0
+      213: 384803034124647918
+    second: w_knight 1_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -126,23 +126,23 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: gamelog_bg_0
+      name: w_knight 1_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 1488
-        height: 526
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        width: 35
+        height: 54
+      alignment: 9
+      pivot: {x: 0.5, y: 0.15}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: d93a247a9ee5fe6e0800000000000000
-      internalID: -1806120567925726307
+      spriteID: eedfd7d1258175500800000000000000
+      internalID: 384803034124647918
       vertices: []
       indices: 
       edges: []
@@ -151,7 +151,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: 179bd395606b63a45801139571df75ac
     internalID: 0
     vertices: []
     indices: 
@@ -161,7 +161,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      gamelog_bg_0: -1806120567925726307
+      w_knight 1_0: 384803034124647918
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
