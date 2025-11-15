@@ -118,7 +118,24 @@ public class Chessman : MonoBehaviour
 
     private void OnMouseUp()
     {
-        Debug.Log($"Clicked on {this.name} at ({xBoard},{yBoard})!");  // Debug: Confirm click
+        // Fixed: Enforce turn check - only generate moves if it's this player's turn
+        if (game == null)
+        {
+            Debug.LogError("Game reference missing!");
+            return;
+        }
+        if (game.IsGameOver)  // Added: Block moves if game over
+        {
+            Debug.Log("Game over! No more moves.");
+            return;
+        }
+        if (game.GetCurrentPlayer() != player)
+        {
+            Debug.Log($"Not your turn! Current player: {game.GetCurrentPlayer()}, your color: {player}");
+            return;
+        }
+
+        Debug.Log($"Clicked on {this.name} ({player}) at ({xBoard},{yBoard})! It's your turn.");
 
         DestroyMovePlates();
         InitiateMoveplates(); 
@@ -172,10 +189,10 @@ public class Chessman : MonoBehaviour
                 LineMovePlate(0, -1); 
                 break;    
             case "b_pawn":
-                PawnMovePlate(xBoard, yBoard - 1);
+                PawnMovePlate();  // Updated: No params; handles single/double/attacks inside
                 break;
             case "w_pawn":
-                PawnMovePlate(xBoard, yBoard + 1);
+                PawnMovePlate();  // Updated: No params; handles single/double/attacks inside
                 break;
         }
     }
@@ -261,7 +278,8 @@ public class Chessman : MonoBehaviour
         }
     }
 
-    public void PawnMovePlate(int x, int y)
+    // Updated: Parameterless; handles single forward, optional double (first move), and diagonal attacks
+    public void PawnMovePlate()
     {
         // Fixed: Direct use of 'game' reference
         if (game == null)
@@ -270,28 +288,44 @@ public class Chessman : MonoBehaviour
             return;
         }
 
-        if (game.PositionOnBoard(x, y))
-        {
-            if (game.GetPosition(x, y) == null)
-            {
-                MovePlateSpawn(x, y);
-            }
-            if (game.PositionOnBoard(x + 1, y) && game.GetPosition(x + 1, y) != null)
-            {
-                Chessman target = game.GetPosition(x + 1, y).GetComponent<Chessman>();
-                if (target != null && target.player != player)
-                {
-                    MovePlateAttackSpawn(x + 1, y);
-                }
-            }
+        int forward = (player == "white") ? 1 : -1;
+        int startRow = (player == "white") ? 1 : 6;
+        int singleY = yBoard + forward;
+        int doubleY = yBoard + (forward * 2);
+        bool isFirstMove = (yBoard == startRow);
 
-            if (game.PositionOnBoard(x - 1, y) && game.GetPosition(x - 1, y) != null)
+        // Single forward move (always available if empty)
+        if (game.PositionOnBoard(xBoard, singleY) && game.GetPosition(xBoard, singleY) == null)
+        {
+            MovePlateSpawn(xBoard, singleY);
+        }
+
+        // Double forward move (only on first move, if both squares empty)
+        if (isFirstMove && game.PositionOnBoard(xBoard, doubleY) && 
+            game.GetPosition(xBoard, singleY) == null && 
+            game.GetPosition(xBoard, doubleY) == null)
+        {
+            MovePlateSpawn(xBoard, doubleY);
+            Debug.Log($"{this.name} can double-move to ({xBoard}, {doubleY})");  // Optional debug
+        }
+
+        // Diagonal attacks (always on forward row, if enemy present)
+        int attackY = singleY;  // Attacks are always single-step forward
+        if (game.PositionOnBoard(xBoard + 1, attackY) && game.GetPosition(xBoard + 1, attackY) != null)
+        {
+            Chessman target = game.GetPosition(xBoard + 1, attackY).GetComponent<Chessman>();
+            if (target != null && target.player != player)
             {
-                Chessman target = game.GetPosition(x - 1, y).GetComponent<Chessman>();
-                if (target != null && target.player != player)
-                {
-                    MovePlateAttackSpawn(x - 1, y);
-                }
+                MovePlateAttackSpawn(xBoard + 1, attackY);
+            }
+        }
+
+        if (game.PositionOnBoard(xBoard - 1, attackY) && game.GetPosition(xBoard - 1, attackY) != null)
+        {
+            Chessman target = game.GetPosition(xBoard - 1, attackY).GetComponent<Chessman>();
+            if (target != null && target.player != player)
+            {
+                MovePlateAttackSpawn(xBoard - 1, attackY);
             }
         }
     }

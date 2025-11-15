@@ -1,4 +1,6 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
+using System.Collections;
 
 public class Game : MonoBehaviour
 {
@@ -10,11 +12,19 @@ public class Game : MonoBehaviour
     private GameObject[] playerWhite = new GameObject[16];
 
     public string currentPlayer = "white";
-    // private bool gameOver = false;
+    public bool IsGameOver { get; private set; } = false;  // Added: Track game over state
     
+    private GameTimer gameTimer;  // Added: Reference to timer for deduction
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        gameTimer = GetComponent<GameTimer>();  // Added: Get timer reference
+        if (gameTimer != null)
+        {
+            gameTimer.StartTimer();  // Added: Auto-start timers
+        }
+
         playerWhite = new GameObject[]{
             Create("w_rook", 0, 0),
             Create("w_knight", 1, 0),
@@ -62,6 +72,13 @@ public class Game : MonoBehaviour
             SetPosition(playerBlack[i]);
         }
     }
+
+    void Update()  // Added: Deduct time only for current player each frame
+    {
+        if (IsGameOver || gameTimer == null) return;
+
+        gameTimer.DeductTimeForCurrentPlayer(Time.deltaTime, currentPlayer);
+    }
     
     public GameObject Create(string name, int x, int y)
     {
@@ -101,5 +118,47 @@ public class Game : MonoBehaviour
         if (x < 0 || y < 0 || x >= positions.GetLength(0) || y >= positions.GetLength(1))
             return false;
         return true;
+    }
+
+    public string GetCurrentPlayer()
+    {
+        return currentPlayer;
+    }
+
+    public void NextTurn()
+    {
+        if (IsGameOver) return;  // Added: Skip if game over
+
+        if (currentPlayer == "white")
+        {
+            currentPlayer = "black";  // Fixed: = for assignment (was ==)
+        }
+        else
+        {
+            currentPlayer = "white";  // Fixed: = for assignment (was ==)
+        }
+    }
+
+    // Added: End game on king capture, log win message, reset after 10s
+    public void EndGame(string winner)
+    {
+        if (IsGameOver) return;  // Prevent multiple calls
+
+        IsGameOver = true;
+        Debug.Log($"{winner} wins!");  // Display "(Player) win!" in Console (swap for UI later)
+
+        // Added: Pause timers on game over
+        if (gameTimer != null)
+        {
+            gameTimer.PauseTimer();
+        }
+
+        StartCoroutine(ResetAfterDelay(10f));
+    }
+
+    private IEnumerator ResetAfterDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);  // Reload current scene
     }
 }

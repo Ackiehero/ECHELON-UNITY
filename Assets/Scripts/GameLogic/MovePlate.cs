@@ -26,19 +26,23 @@ public class MovePlate : MonoBehaviour
     {
         // Fixed: Proper assignment and GetComponent<Game>()
         controller = GameObject.FindGameObjectWithTag("GameController");
+        Game game = controller.GetComponent<Game>();  // Cache for reuse
+
+        string destroyedPieceName = "";  // Added: Track if king was destroyed
 
         if (attack)
         {
             // Fixed: Access GetPosition on Game component
-            GameObject cp = controller.GetComponent<Game>().GetPosition(matrixX, matrixY);
+            GameObject cp = game.GetPosition(matrixX, matrixY);
             if (cp != null)
             {
+                destroyedPieceName = cp.name;  // Added: Store name before destroy
                 Destroy(cp);
             }
         }
 
         // Fixed: Access SetPositionEmpty on Game
-        controller.GetComponent<Game>().SetPositionEmpty(reference.GetComponent<Chessman>().GetXBoard(), reference.GetComponent<Chessman>().GetYBoard());
+        game.SetPositionEmpty(reference.GetComponent<Chessman>().GetXBoard(), reference.GetComponent<Chessman>().GetYBoard());
 
         // Fixed: SetYBoard (was duplicate SetXBoard); call SetCoordinates()
         reference.GetComponent<Chessman>().SetXBoard(matrixX);
@@ -46,9 +50,23 @@ public class MovePlate : MonoBehaviour
         reference.GetComponent<Chessman>().SetCoordinates();
 
         // Fixed: Access SetPosition on Game
-        controller.GetComponent<Game>().SetPosition(reference);
+        game.SetPosition(reference);
 
         reference.GetComponent<Chessman>().DestroyMovePlates();
+
+        // Added: Check for king capture after move
+        if (!string.IsNullOrEmpty(destroyedPieceName) && destroyedPieceName.Contains("_king"))
+        {
+            game.EndGame(game.GetCurrentPlayer());  // End game with current player as winner
+            return;  // Don't switch turns
+        }
+
+        // Fixed: Switch turns after successful move (skip if game over)
+        if (!game.IsGameOver)
+        {
+            Debug.Log($"Move complete. Switching turn from {game.GetCurrentPlayer()} to {(game.GetCurrentPlayer() == "white" ? "black" : "white")}");
+            game.NextTurn();
+        }
     }
 
     public void SetCoordinates(int x, int y)
