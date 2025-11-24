@@ -6,6 +6,9 @@ public class Chessman : MonoBehaviour
     public GameObject chessman;
     public GameObject movePlate;
 
+    // === TIER SYSTEM ===
+    public int tier = 1;  // Default Tier 1, max 3
+
     // Positions
     private int xBoard = -1;
     private int yBoard = -1;
@@ -118,37 +121,24 @@ public class Chessman : MonoBehaviour
 
     private void OnMouseUp()
     {
-        // Fixed: Enforce turn check - only generate moves if it's this player's turn
-        if (game == null)
-        {
-            Debug.LogError("Game reference missing!");
-            return;
-        }
-        if (game.IsGameOver)  // Added: Block moves if game over
-        {
-            Debug.Log("Game over! No more moves.");
-            return;
-        }
-        if (game.GetCurrentPlayer() != player)
-        {
-            Debug.Log($"Not your turn! Current player: {game.GetCurrentPlayer()}, your color: {player}");
-            return;
-        }
+        if (game == null || game.IsGameOver || game.GetCurrentPlayer() != player) return;
 
-        Debug.Log($"Clicked on {this.name} ({player}) at ({xBoard},{yBoard})! It's your turn.");
+        // SELECT PIECE FOR UPGRADE
+        TierManager.Instance.SelectPiece(this);
 
+        // CLEAN OLD PLATES (DO NOT DESELECT!)
         DestroyMovePlates();
-        InitiateMoveplates(); 
+
+        // SHOW NEW MOVES
+        InitiateMoveplates();
     }
 
+    // FIXED: NO DESELECT HERE ANYMORE!
     public void DestroyMovePlates()
     {
-        // Fixed: Use plural FindGameObjectsWithTag for array; consistent variable 'movePlates'
         GameObject[] movePlates = GameObject.FindGameObjectsWithTag("MovePlate");
-        for (int i = 0; i < movePlates.Length; i++)
-        {
-            Destroy(movePlates[i]);
-        }
+        foreach (GameObject plate in movePlates)
+            Destroy(plate.gameObject);
     }
 
     public void InitiateMoveplates()
@@ -232,7 +222,7 @@ public class Chessman : MonoBehaviour
         PointMovePlate(xBoard - 1, yBoard + 2);
         PointMovePlate(xBoard + 2, yBoard + 1);
         PointMovePlate(xBoard + 2, yBoard - 1);
-        PointMovePlate(xBoard + 1, yBoard - 1);
+        PointMovePlate(xBoard + 1, yBoard - 2);
         PointMovePlate(xBoard - 1, yBoard - 2);
         PointMovePlate(xBoard - 2, yBoard + 1);
         PointMovePlate(xBoard - 2, yBoard - 1);

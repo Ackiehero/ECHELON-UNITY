@@ -186,7 +186,7 @@ public class GameLog : MonoBehaviour
         LogMessage(logMessage);
     }
 
-    private void LogMessage(string message)
+    public void LogMessage(string message)
     {
         logCounter++;
 

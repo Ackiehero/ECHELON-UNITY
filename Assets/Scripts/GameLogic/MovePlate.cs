@@ -3,85 +3,118 @@ using UnityEngine;
 public class MovePlate : MonoBehaviour
 {
     public GameObject controller;
-
     GameObject reference = null;
-
-    // Board position not World Position
     int matrixX;
     int matrixY;
-
-    // false: movement. true: attacking
     public bool attack = false;
 
     void Start()
     {
         if (attack)
-        {
-            // Change to Red
             GetComponent<SpriteRenderer>().color = new Color(1.0f, 0.0f, 0.0f, 1.0f);
-        }
     }
 
     void OnMouseUp()
     {
-        // Fixed: Proper assignment and GetComponent<Game>()
         controller = GameObject.FindGameObjectWithTag("GameController");
-        Game game = controller.GetComponent<Game>();  // Cache for reuse
+        Game game = controller.GetComponent<Game>();
+        Chessman attacker = reference.GetComponent<Chessman>();
+        GameObject defenderGO = game.GetPosition(matrixX, matrixY);
 
-        string destroyedPieceName = "";  // Added: Track if king was destroyed
-
-        if (attack)
+        // === ECHELON: TIER CLASH SYSTEM ===
+        if (attack && defenderGO != null)
         {
-            // Fixed: Access GetPosition on Game component
-            GameObject cp = game.GetPosition(matrixX, matrixY);
-            if (cp != null)
+            Chessman defender = defenderGO.GetComponent<Chessman>();
+            bool sameClass = IsSameClass(attacker, defender);
+
+            if (sameClass)
             {
-                destroyedPieceName = cp.name;  // Added: Store name before destroy
-                Destroy(cp);
+                if (defender.tier > attacker.tier)
+                {
+                    // DEFENDER WINS → ATTACKER DIES → TURN ENDS IMMEDIATELY
+                    LogMessage($"Tier {attacker.tier} {Capitalize(attacker.player)} {GetPieceName(attacker)} was defeated!");
+                    Destroy(reference);
+                    TierManager.Instance?.DeselectPiece();
+
+                    // FIXED: CLEANUP AND END TURN
+                    attacker.DestroyMovePlates();
+                    if (!game.IsGameOver)
+                        game.NextTurn();
+                    
+                    if (reference.name.Contains("_king"))
+                        game.EndGame(defender.player);
+                    
+                    return;
+                }
+                else
+                {
+                    // ATTACKER WINS
+                    LogMessage($"Tier {defender.tier} {Capitalize(defender.player)} {GetPieceName(defender)} was captured.");
+                    Destroy(defenderGO);
+                }
+            }
+            else
+            {
+                // DIFFERENT CLASS → NORMAL CAPTURE
+                Destroy(defenderGO);
             }
         }
 
-        // Fixed: Access SetPositionEmpty on Game
-        game.SetPositionEmpty(reference.GetComponent<Chessman>().GetXBoard(), reference.GetComponent<Chessman>().GetYBoard());
-
-        // Fixed: SetYBoard (was duplicate SetXBoard); call SetCoordinates()
-        reference.GetComponent<Chessman>().SetXBoard(matrixX);
-        reference.GetComponent<Chessman>().SetYBoard(matrixY);
-        reference.GetComponent<Chessman>().SetCoordinates();
-
-        // Fixed: Access SetPosition on Game
+        // === NORMAL MOVE (only if attacker survived) ===
+        game.SetPositionEmpty(attacker.GetXBoard(), attacker.GetYBoard());
+        attacker.SetXBoard(matrixX);
+        attacker.SetYBoard(matrixY);
+        attacker.SetCoordinates();
         game.SetPosition(reference);
 
-        reference.GetComponent<Chessman>().DestroyMovePlates();
+        attacker.DestroyMovePlates();
 
-        // Added: Check for king capture after move
-        if (!string.IsNullOrEmpty(destroyedPieceName) && destroyedPieceName.Contains("_king"))
+        // === KING CAPTURED? ===
+        if (defenderGO != null && defenderGO.name.Contains("_king"))
         {
-            game.EndGame(game.GetCurrentPlayer());  // End game with current player as winner
-            return;  // Don't switch turns
+            game.EndGame(game.GetCurrentPlayer());
+            return;
         }
 
-        // Fixed: Switch turns after successful move (skip if game over)
+        // === NEXT TURN (normal move) ===
         if (!game.IsGameOver)
-        {
-            Debug.Log($"Move complete. Switching turn from {game.GetCurrentPlayer()} to {(game.GetCurrentPlayer() == "white" ? "black" : "white")}");
             game.NextTurn();
-        }
     }
 
-    public void SetCoordinates(int x, int y)
+    private void LogMessage(string msg)
     {
-        matrixX = x;
-        matrixY = y;
+        GameLog gl = Object.FindFirstObjectByType<GameLog>();
+        gl?.LogMessage(msg);
     }
 
-    public void SetReference(GameObject obj)
+    private bool IsSameClass(Chessman a, Chessman b)
     {
-        reference = obj;
+        string typeA = a.name.Replace("w_", "").Replace("b_", "");
+        string typeB = b.name.Replace("w_", "").Replace("b_", "");
+        if (typeA == typeB) return true;
+        if ((typeA == "knight" && typeB == "bishop") || (typeA == "bishop" && typeB == "knight"))
+            return true;
+        return false;
     }
 
-    public GameObject GetReference()
+    private string GetPieceName(Chessman c)
     {
-        return reference;
+        string n = c.name.Replace("w_", "").Replace("b_", "");
+        return n switch
+        {
+            "king" => "King", "queen" => "Queen", "rook" => "Rook",
+            "bishop" => "Bishop", "knight" => "Knight", "pawn" => "Pawn",
+            _ => n
+        };
     }
+
+    private string Capitalize(string s)
+    {
+        if (string.IsNullOrEmpty(s)) return s;
+        return char.ToUpper(s[0]) + s.Substring(1);
+    }
+
+    public void SetCoordinates(int x, int y) { matrixX = x; matrixY = y; }
+    public void SetReference(GameObject obj) { reference = obj; }
+    public GameObject GetReference() { return reference; }
 }
