@@ -24,13 +24,16 @@ public class MovePlate : MonoBehaviour
         // === ECHELON: TIER CLASH SYSTEM ===
         if (attack && defenderGO != null)
         {
+            // Play Attack SFX
+             ChessSFX.Attack();
+
             Chessman defender = defenderGO.GetComponent<Chessman>();
             bool sameClass = IsSameClass(attacker, defender);
 
             if (sameClass)
             {
                 if (defender.tier > attacker.tier)
-                {
+                {                   
                     // DEFENDER WINS → ATTACKER DIES → TURN ENDS IMMEDIATELY
                     LogMessage($"Tier {attacker.tier} {Capitalize(attacker.player)} {GetPieceName(attacker)} was defeated!");
                     Destroy(reference);
@@ -58,6 +61,11 @@ public class MovePlate : MonoBehaviour
                 // DIFFERENT CLASS → NORMAL CAPTURE
                 Destroy(defenderGO);
             }
+        }
+
+        else
+        {
+            ChessSFX.Move();  // ← Move sound plays ONLY for normal moves, perfect timing
         }
 
         // === NORMAL MOVE (only if attacker survived) ===

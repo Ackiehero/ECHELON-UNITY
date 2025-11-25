@@ -19,12 +19,12 @@ public class Chessman : MonoBehaviour
     // References for all the sprites that the chessman can be;
     public Sprite b_king, w_king, b_queen, w_queen, b_rook, w_rook, b_bishop, w_bishop, b_knight, w_knight, b_pawn, w_pawn;
 
-    // Fixed: Direct reference to Game (no GameController needed)
+    // Direct reference to Game (no GameController needed)
     private Game game;
 
     public void Activate()
     {
-        // Fixed: Fetch GameObject, then directly get Game component (no GameController)
+        // Fetch GameObject, then directly get Game component (no GameController)
         GameObject controllerGO = GameObject.FindGameObjectWithTag("GameController");
         if (controllerGO == null)
         {
@@ -72,23 +72,16 @@ public class Chessman : MonoBehaviour
         float tileSizeX = ((1550f / 100f) * 0.7f) / 8f;  // ~1.3755 units wide per tile
         float tileSizeY = ((1550f / 100f) * 0.7f) / 8f;  // ~1.3685 units tall per tile
 
-        // Optional: Add padding for piece gaps (reduce tile_size; e.g., 0.9f = 10% smaller tiles)
+        // Add padding for piece gaps (reduce tile_size; e.g., 0.9f = 10% smaller tiles)
         float padding = 0.9f;  // Experiment: 1.0f (no padding), 0.8f (more space), 1.1f (tighter)
         tileSizeX *= padding;
         tileSizeY *= padding;
 
         // Center the grid on board: (board_coord - 3.5) * tile_size positions at tile centers
         float x = (xBoard - 3.5f) * tileSizeX;
-        float y = (yBoard - 3.5f) * tileSizeY;
-
-        // Bottom-center pivot: No extra offset needed (base sits at position).
-        // Uncomment below if pieces appear too high/low (e.g., for center-pivot fallback):
-        // y -= tileSizeY / 2f;  // Drops base to tile bottom
+        float y = (yBoard - 3.5f) * tileSizeY;        
 
         transform.position = new Vector3(x, y, -1.0f);
-
-        // Optional debug: Log position and bounds for tweaking
-        // Debug.Log(name + " at board(" + xBoard + "," + yBoard + ") -> world(" + x + "," + y + "); Bounds: " + GetComponent<Renderer>().bounds.size);
 
         SpriteRenderer sr = GetComponent<SpriteRenderer>();
         if (sr != null)
@@ -123,6 +116,9 @@ public class Chessman : MonoBehaviour
     {
         if (game == null || game.IsGameOver || game.GetCurrentPlayer() != player) return;
 
+        // Play Select SFX
+        ChessSFX.Select();
+
         // SELECT PIECE FOR UPGRADE
         TierManager.Instance.SelectPiece(this);
 
@@ -133,7 +129,6 @@ public class Chessman : MonoBehaviour
         InitiateMoveplates();
     }
 
-    // FIXED: NO DESELECT HERE ANYMORE!
     public void DestroyMovePlates()
     {
         GameObject[] movePlates = GameObject.FindGameObjectsWithTag("MovePlate");
@@ -179,17 +174,17 @@ public class Chessman : MonoBehaviour
                 LineMovePlate(0, -1); 
                 break;    
             case "b_pawn":
-                PawnMovePlate();  // Updated: No params; handles single/double/attacks inside
+                PawnMovePlate();  // No params; handles single/double/attacks inside
                 break;
             case "w_pawn":
-                PawnMovePlate();  // Updated: No params; handles single/double/attacks inside
+                PawnMovePlate();  // No params; handles single/double/attacks inside
                 break;
         }
     }
 
     public void LineMovePlate(int xIncrement, int yIncrement)
     {
-        // Fixed: Direct use of 'game' reference (no need for gameObject.GetComponent)
+        // Direct use of 'game' reference (no need for gameObject.GetComponent)
         if (game == null)
         {
             Debug.LogError("Game reference lost!");
@@ -242,7 +237,7 @@ public class Chessman : MonoBehaviour
 
     public void PointMovePlate(int x, int y)
     {
-        // Fixed: Direct use of 'game' reference
+        // Direct use of 'game' reference
         if (game == null)
         {
             Debug.LogError("Game reference lost!");
@@ -268,10 +263,10 @@ public class Chessman : MonoBehaviour
         }
     }
 
-    // Updated: Parameterless; handles single forward, optional double (first move), and diagonal attacks
+    // Parameterless; handles single forward, optional double (first move), and diagonal attacks
     public void PawnMovePlate()
     {
-        // Fixed: Direct use of 'game' reference
+        // Direct use of 'game' reference
         if (game == null)
         {
             Debug.LogError("Game reference lost!");

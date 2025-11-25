@@ -18,19 +18,22 @@ public class TierManager : MonoBehaviour
     {
         if (Instance != null && Instance != this) { Destroy(gameObject); return; }
         Instance = this;
-        DontDestroyOnLoad(gameObject);
     }
 
     private void Start()
     {
-        upgradeButton.onClick.RemoveAllListeners();
-        upgradeButton.onClick.AddListener(UpgradePiece);
-        upgradeButton.interactable = false;
-        upgradeButton.image.color = new Color(1, 1, 1, 0.5f);
+        if (upgradeButton != null)
+        {
+            upgradeButton.onClick.RemoveAllListeners();
+            upgradeButton.onClick.AddListener(UpgradePiece);
+            upgradeButton.interactable = false;
+            upgradeButton.image.color = new Color(1, 1, 1, 0.5f);
+        }
+
         UpdateTokenDisplay();
     }
 
-    // FIXED: Check turn EVERY FRAME — deselect if not your turn
+    // Check turn EVERY FRAME — deselect if not your turn
     private void Update()
     {
         if (selectedPiece != null)
@@ -91,6 +94,8 @@ public class TierManager : MonoBehaviour
 
         tokens -= cost;
         selectedPiece.tier++;
+        // PLAY UPGRADE SOUND BASED ON NEW TIER
+        ChessSFX.TierUp(selectedPiece.tier);
 
         ClearTierMark(selectedPiece);
         ShowTierMark(selectedPiece);
@@ -178,5 +183,11 @@ public class TierManager : MonoBehaviour
             "queen" => 5,
             _ => 999
         };
+    }
+
+    // FINAL FIX: Prevents editor spam when stopping play mode
+    private void OnDestroy()
+    {
+        if (Instance == this) Instance = null;
     }
 }

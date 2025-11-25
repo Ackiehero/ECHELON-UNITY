@@ -2,21 +2,21 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using System.Collections.Generic;
-using System.Collections;  // Added: For coroutines
+using System.Collections;
 
 public class GameLog : MonoBehaviour
 {
     [Header("UI References")]
     public ScrollRect gameLogScroll;  // Assign GameLogScroll in Inspector
     public Game game;  // Auto-find Game component
-    public GameObject textLogPrefab;  // Added: Public prefab reference for TextMeshPro log entry (drag your Text - TextMeshPro prefab here)
+    public GameObject textLogPrefab;  // Public prefab reference for TextMeshPro log entry (drag your Text - TextMeshPro prefab here)
 
     private Transform content;
     private GameObject[,] positionSnapshot = new GameObject[8, 8];
     private string lastPlayer = "";
     private int logCounter = 0;
     private VerticalLayoutGroup layoutGroup;
-    private bool isInitialized = false;  // Added: Flag to prevent early logs
+    private bool isInitialized = false;  // Flag to prevent early logs
 
     void Start()
     {
@@ -24,7 +24,7 @@ public class GameLog : MonoBehaviour
         if (gameLogScroll == null)
             gameLogScroll = GameObject.Find("GameLogScroll").GetComponent<ScrollRect>();
         if (game == null)
-            game = Object.FindFirstObjectByType<Game>();  // Fixed: Use FindFirstObjectByType (deprecation fix)
+            game = Object.FindFirstObjectByType<Game>();  // Use FindFirstObjectByType (deprecation fix)
 
         if (gameLogScroll == null || game == null)
         {
@@ -52,7 +52,7 @@ public class GameLog : MonoBehaviour
             layoutGroup.childForceExpandHeight = false;
         }
 
-        // Added: Delay initialization to allow board setup in Game.Start()
+        // Delay initialization to allow board setup in Game.Start()
         StartCoroutine(DelayedInit());
     }
 
@@ -66,14 +66,14 @@ public class GameLog : MonoBehaviour
         // Initial log: [White]'s Turn!
         LogMessage("[White]'s Turn!");
         lastPlayer = "white";
-        isInitialized = true;  // Added: Now allow Update() logs
+        isInitialized = true;  // Now allow Update() logs
     }
 
     void Update()
     {
-        if (!isInitialized || game.IsGameOver) return;  // Added: Skip until init and if over
+        if (!isInitialized || game.IsGameOver) return;  // Skip until init and if over
 
-        // Fixed: Check for position changes FIRST (move detection before turn change)
+        // Check for position changes FIRST (move detection before turn change)
         if (HasPositionChanged())
         {
             DetectAndLogMove();
@@ -155,7 +155,7 @@ public class GameLog : MonoBehaviour
 
         if (movedPiece == null || toX == -1) return;  // No valid move detected
 
-        // Fixed: Attribute to PREVIOUS player (mover), since turn has switched after move
+        // Attribute to PREVIOUS player (mover), since turn has switched after move
         string mover = (game.GetCurrentPlayer() == "white") ? "black" : "white";
         string playerColor = Capitalize(mover);
 

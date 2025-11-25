@@ -85,9 +85,6 @@ public class GameTimer : MonoBehaviour
     {
         while (isRunning)
         {
-            // Fixed: No auto-decrement here—handled in Game.Update() for current player only
-            // Just check for timeout (e.g., if a player runs out during their turn)
-
             // Check for time up (e.g., if <0, end game)
             if (timeRemainingWhite <= 0 || timeRemainingBlack <= 0)
             {

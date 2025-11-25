@@ -12,17 +12,17 @@ public class Game : MonoBehaviour
     private GameObject[] playerWhite = new GameObject[16];
 
     public string currentPlayer = "white";
-    public bool IsGameOver { get; private set; } = false;  // Added: Track game over state
+    public bool IsGameOver { get; private set; } = false;  // Track game over state
     
-    private GameTimer gameTimer;  // Added: Reference to timer for deduction
+    private GameTimer gameTimer;  // Reference to timer for deduction
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        gameTimer = GetComponent<GameTimer>();  // Added: Get timer reference
+        gameTimer = GetComponent<GameTimer>();  // Get timer reference
         if (gameTimer != null)
         {
-            gameTimer.StartTimer();  // Added: Auto-start timers
+            gameTimer.StartTimer();  // Auto-start timers
         }
 
         playerWhite = new GameObject[]{
@@ -62,7 +62,7 @@ public class Game : MonoBehaviour
             Create("b_pawn", 7, 6),
         };
 
-        // Fixed: Separate loops for white and black; i < length
+        // Separate loops for white and black; i < length
         for (int i = 0; i < playerWhite.Length; i++)
         {
             SetPosition(playerWhite[i]);
@@ -73,7 +73,7 @@ public class Game : MonoBehaviour
         }
     }
 
-    void Update()  // Added: Deduct time only for current player each frame
+    void Update()  // Deduct time only for current player each frame
     {
         if (IsGameOver || gameTimer == null) return;
 
@@ -127,19 +127,19 @@ public class Game : MonoBehaviour
 
     public void NextTurn()
     {
-        if (IsGameOver) return;  // Added: Skip if game over
+        if (IsGameOver) return;  // Skip if game over
 
         if (currentPlayer == "white")
         {
-            currentPlayer = "black";  // Fixed: = for assignment (was ==)
+            currentPlayer = "black";  // = for assignment (was ==)
         }
         else
         {
-            currentPlayer = "white";  // Fixed: = for assignment (was ==)
+            currentPlayer = "white";  // = for assignment (was ==)
         }
     }
 
-    // Added: End game on king capture, log win message, reset after 10s
+    // End game on king capture, log win message, reset after 10s
     public void EndGame(string winner)
     {
         if (IsGameOver) return;  // Prevent multiple calls
@@ -147,7 +147,7 @@ public class Game : MonoBehaviour
         IsGameOver = true;
         Debug.Log($"{winner} wins!");  // Display "(Player) win!" in Console (swap for UI later)
 
-        // Added: Pause timers on game over
+        // Pause timers on game over
         if (gameTimer != null)
         {
             gameTimer.PauseTimer();
