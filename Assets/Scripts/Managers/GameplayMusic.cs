@@ -3,61 +3,71 @@ using UnityEngine;
 [RequireComponent(typeof(AudioSource))]
 public class GameMusic : MonoBehaviour
 {
-    [Header("In-Game Background Music (Subtle Volume)")]
-    public AudioClip[] musicTracks = new AudioClip[3];  // Drag your 3 tracks here
+    [Header("3 Random Background Tracks - Subtle Volume")]
+    public AudioClip[] tracks = new AudioClip[3]; // Drag your 3 tracks here
 
-    private AudioSource audioSource;
-    private int[] shuffleOrder = new int[3];  // Random order: 0,1,2 shuffled
-    private int currentTrackIndex = 0;
+    private AudioSource source;
+    private int[] order = { 0, 1, 2 };
+    private int index = 0;
 
-    void Awake()
+    private void Awake()
     {
-        audioSource = GetComponent<AudioSource>();
-        audioSource.playOnAwake = false;
-        audioSource.loop = false;  // Individual tracks don't loop
-        audioSource.volume = 0.25f;  // SUBTLE - won't distract from SFX/chess
+        source = GetComponent<AudioSource>();
+        source.loop = false;
+        source.playOnAwake = false;
+        source.volume = 0.25f; // Calm & non-distracting
 
-        ShuffleTracks();
-        PlayNextTrack();
+        // Start immediately when Game scene loads
+        ShuffleAndPlay();
     }
 
-    void ShuffleTracks()
+    private void ShuffleAndPlay()
     {
-        // Create shuffled order: [0,1,2] → random like [2,0,1]
-        for (int i = 0; i < 3; i++) shuffleOrder[i] = i;
-        
-        // Fisher-Yates shuffle (perfect randomness)
+        // Shuffle order
         for (int i = 2; i > 0; i--)
         {
             int j = Random.Range(0, i + 1);
-            int temp = shuffleOrder[i];
-            shuffleOrder[i] = shuffleOrder[j];
-            shuffleOrder[j] = temp;
+            (order[i], order[j]) = (order[j], order[i]);
         }
+
+        index = 0;
+        PlayCurrentTrack();
     }
 
-    void PlayNextTrack()
+    private void PlayCurrentTrack()
     {
-        if (musicTracks.Length == 0 || shuffleOrder.Length == 0) return;
+        if (tracks.Length == 0 || tracks[order[index]] == null) return;
 
-        audioSource.clip = musicTracks[shuffleOrder[currentTrackIndex]];
-        audioSource.Play();
+        source.clip = tracks[order[index]];
+        source.Play();
 
-        // Schedule next track when this one finishes
-        Invoke(nameof(PlayNextTrack), audioSource.clip.length);
-        
-        currentTrackIndex++;
-        if (currentTrackIndex >= 3)
+        // Schedule next track exactly when this one ends
+        Invoke(nameof(NextTrack), source.clip.length);
+    }
+
+    private void NextTrack()
+    {
+        index++;
+        if (index >= 3)
         {
-            currentTrackIndex = 0;
-            ShuffleTracks();  // New random order for next loop
+            ShuffleAndPlay(); // New random order every 3 tracks
+        }
+        else
+        {
+            PlayCurrentTrack();
         }
     }
 
-    // Optional: Stop music when game ends
+    // Optional: Call this from your Game.cs when game ends
     public void StopMusic()
     {
-        CancelInvoke(nameof(PlayNextTrack));
-        audioSource.Stop();
+        CancelInvoke();
+        source.Stop();
+    }
+
+    // Safety cleanup
+    private void OnDestroy()
+    {
+        CancelInvoke();
     }
 }
