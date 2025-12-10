@@ -15,7 +15,7 @@ public class GameMusic : MonoBehaviour
         source = GetComponent<AudioSource>();
         source.loop = false;
         source.playOnAwake = false;
-        source.volume = 0.25f; // Calm & non-distracting
+        source.volume = 1f; // Calm & non-distracting
 
         // Start immediately when Game scene loads
         ShuffleAndPlay();

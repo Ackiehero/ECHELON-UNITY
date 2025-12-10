@@ -21,6 +21,27 @@ public class MovePlate : MonoBehaviour
         Chessman attacker = reference.GetComponent<Chessman>();
         GameObject defenderGO = game.GetPosition(matrixX, matrixY);
 
+        // === CASTLING ===
+        CastlingManager castle = FindFirstObjectByType<CastlingManager>();
+        if (attacker.name.Contains("king") && Mathf.Abs(matrixX - attacker.GetXBoard()) == 2)
+        {
+            castle.DoCastling(attacker, matrixX);
+
+            game.SetPositionEmpty(attacker.GetXBoard(), attacker.GetYBoard());
+            attacker.SetXBoard(matrixX);
+            attacker.SetYBoard(matrixY);
+            attacker.SetCoordinates();
+            game.SetPosition(reference);
+
+            attacker.DestroyMovePlates();
+            ChessSFX.Move();
+
+            if (!game.IsGameOver)
+                game.NextTurn();
+
+                return;
+        }
+
         // === ECHELON: TIER CLASH SYSTEM ===
         if (attack && defenderGO != null)
         {
@@ -87,6 +108,14 @@ public class MovePlate : MonoBehaviour
         // === NEXT TURN (normal move) ===
         if (!game.IsGameOver)
             game.NextTurn();
+
+            // PHASE 1: Track black pawn for AI boss system
+            Chessman movedPiece = reference.GetComponent<Chessman>();
+            if (movedPiece != null && movedPiece.player == "black" && movedPiece.name.Contains("pawn"))
+            {
+                AI_TierBossSystem boss = FindFirstObjectByType<AI_TierBossSystem>();
+                boss?.OnBlackPawnMoved(movedPiece);
+            }
     }
 
     private void LogMessage(string msg)
@@ -125,4 +154,12 @@ public class MovePlate : MonoBehaviour
     public void SetCoordinates(int x, int y) { matrixX = x; matrixY = y; }
     public void SetReference(GameObject obj) { reference = obj; }
     public GameObject GetReference() { return reference; }
+
+    public int GetX() { return matrixX; }
+    public int GetY() { return matrixY; }
+
+    public void PerformMove()
+    {
+        OnMouseUp();
+    }
 }

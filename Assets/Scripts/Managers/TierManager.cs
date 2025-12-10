@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using Mirror;
 
 public class TierManager : MonoBehaviour
 {
@@ -25,7 +26,7 @@ public class TierManager : MonoBehaviour
         if (upgradeButton != null)
         {
             upgradeButton.onClick.RemoveAllListeners();
-            upgradeButton.onClick.AddListener(UpgradePiece);
+            upgradeButton.onClick.AddListener(() => UpgradePiece(selectedPiece));
             upgradeButton.interactable = false;
             upgradeButton.image.color = new Color(1, 1, 1, 0.5f);
         }
@@ -84,7 +85,7 @@ public class TierManager : MonoBehaviour
         upgradeButton.image.color = new Color(1, 1, 1, 0.5f);
     }
 
-    private void UpgradePiece()
+    public void UpgradePiece(Chessman piece)
     {
         if (selectedPiece == null || selectedPiece.tier >= 3 || selectedPiece.name.Contains("king")) return;
 
@@ -168,9 +169,25 @@ public class TierManager : MonoBehaviour
 
     public void UpdateTokenDisplay()
     {
-        Game game = Object.FindFirstObjectByType<Game>();
-        int tokens = game.GetCurrentPlayer() == "white" ? whiteTokens : blackTokens;
-        tokenNumberText.text = tokens.ToString();
+        // Try LAN mode first
+        var lanManager = Object.FindFirstObjectByType<LANGameManager>();
+        if (lanManager != null)
+        {
+            string currentPlayer = PlayerController.LocalPlayer?.playerColorName ?? "white";
+            int tokens = currentPlayer == "white" ? whiteTokens : blackTokens;
+            if (tokenNumberText != null)
+                tokenNumberText.text = tokens.ToString();
+            return;
+        }
+
+        // Fallback to single-player (old way)
+        var game = Object.FindFirstObjectByType<Game>();
+        if (game != null && tokenNumberText != null)
+        {
+            string currentPlayer = game.GetCurrentPlayer();
+            int tokens = currentPlayer == "white" ? whiteTokens : blackTokens;
+            tokenNumberText.text = tokens.ToString();
+        }
     }
 
     private int GetCost(Chessman p)
@@ -189,5 +206,16 @@ public class TierManager : MonoBehaviour
     private void OnDestroy()
     {
         if (Instance == this) Instance = null;
+    }
+
+    // AI BOSS SYSTEM USES THIS — PUBLIC ON PURPOSE
+    public void UpgradePieceByAI(Chessman piece)
+    {
+        if (piece == null || piece.tier >= 3 || piece.name.Contains("king")) return;
+
+        piece.tier++;
+        ShowTierMark(piece);
+        GameLog gl = FindFirstObjectByType<GameLog>();
+        gl?.LogMessage("Black upgraded a piece.");
     }
 }

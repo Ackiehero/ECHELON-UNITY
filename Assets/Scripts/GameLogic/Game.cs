@@ -120,23 +120,13 @@ public class Game : MonoBehaviour
         return true;
     }
 
-    public string GetCurrentPlayer()
-    {
-        return currentPlayer;
-    }
+    public virtual string GetCurrentPlayer() => currentPlayer;
 
-    public void NextTurn()
+    public virtual void NextTurn()
     {
-        if (IsGameOver) return;  // Skip if game over
+        currentPlayer = currentPlayer == "white" ? "black" : "white";
 
-        if (currentPlayer == "white")
-        {
-            currentPlayer = "black";  // = for assignment (was ==)
-        }
-        else
-        {
-            currentPlayer = "white";  // = for assignment (was ==)
-        }
+        if (IsGameOver) return;
     }
 
     // End game on king capture, log win message, reset after 10s

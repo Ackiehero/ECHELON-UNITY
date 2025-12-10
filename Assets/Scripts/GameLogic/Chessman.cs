@@ -165,6 +165,8 @@ public class Chessman : MonoBehaviour
             case "b_king":
             case "w_king":
                 SurroundMovePlate();
+                FindFirstObjectByType<CastlingManager>()?.ShowCastlePlates(this);
+                FindFirstObjectByType<CastlingSafetyManager>()?.TryShowSafeCastlePlates(this);
                 break;
             case "b_rook":
             case "w_rook":
@@ -356,5 +358,11 @@ public class Chessman : MonoBehaviour
         mpScript.attack = true;
         mpScript.SetReference(gameObject);
         mpScript.SetCoordinates(matrixX, matrixY);  
+    }
+
+    public void InitiateMove()
+    {
+        DestroyMovePlates();
+        InitiateMoveplates();
     }
 }
