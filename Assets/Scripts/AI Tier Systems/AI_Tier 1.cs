@@ -7,20 +7,20 @@ public class AI_TierBossSystem : MonoBehaviour
     private TierManager tierManager;
     private GameLog gameLog;
 
-    [Header("Boss Phase Settings - Adjustable Live")]
-    [Range(0f, 1f)] public float phase0KnightBishopChance = 0.4f;   // 40% chance to upgrade a Knight/Bishop each turn
+    [Header("Boss Phase Settings - Adjustable Live")] 
+    [Range(0f, 1f)] public float phase0KnightBishopChance = 0.4f;
     [Range(0f, 1f)] public float pawnUpgradeChance = 0.7f;
     [Range(0f, 1f)] public float massPawnMaxChance = 0.6f;
     [Range(0f, 1f)] public float knightBishopUpgradeChance = 1.0f;
     [Range(0f, 1f)] public float queenUpgradePriority = 0.9f;
 
-    private Chessman lastMovedPawn = null; // Remembers which pawn moved last
-    private int blackPawnsLost = 0; // Tracks how many pawns black has lost
-    private int blackOfficersLost = 0; // Tracks how many officers black has lost
-    private int blackTier2OfficersLost = 0; // Tracks how many tier 2+ officers black has lost
+    private Chessman lastMovedPawn = null;
+    private int blackPawnsLost = 0;
+    private int blackOfficersLost = 0;
+    private int blackTier2OfficersLost = 0;
 
-    private enum BossPhase { Phase1, Phase2, Phase3 } // The phases of the boss system
-    private BossPhase currentPhase = BossPhase.Phase1; // The current phase of the boss system
+    private enum BossPhase { Phase1, Phase2, Phase3 }
+    private BossPhase currentPhase = BossPhase.Phase1;
 
     void Awake()
     {
@@ -29,13 +29,21 @@ public class AI_TierBossSystem : MonoBehaviour
         gameLog = FindFirstObjectByType<GameLog>();
     }
 
-    void Update() // MAIN LOOP — Runs once per AI turn
+    void Update()
     {
-        if (game == null || game.IsGameOver || game.GetCurrentPlayer() != "black" || StockfishAI.Instance.isThinking)
-            return;
+        if (game == null) return;
+        if (StockfishAI.Instance == null) return;  // make sure the singleton is ready
 
+        if (game.IsGameOver) return;
+
+        string currentPlayer = game.GetCurrentPlayer();
+        if (string.IsNullOrEmpty(currentPlayer)) return;
+
+        if (currentPlayer != "black" || StockfishAI.Instance.isThinking)
+            return;
+        
         RunBossPhase();
-        enabled = false; 
+        enabled = false;
     }
 
     private void RunBossPhase()
@@ -44,7 +52,7 @@ public class AI_TierBossSystem : MonoBehaviour
 
         Phase0_Warmup();
 
-        if (blackOfficersLost >= 1 && blackTier2OfficersLost >= 1) // Only enter Phase 3 if we actually LOST a Tier 2+ officer
+        if (blackOfficersLost >= 1 && blackTier2OfficersLost >= 1)
             currentPhase = BossPhase.Phase3;
         else if (blackOfficersLost >= 2)
             currentPhase = BossPhase.Phase2;
@@ -67,34 +75,22 @@ public class AI_TierBossSystem : MonoBehaviour
         {
             Chessman target = FindUpgradable("knight") ?? FindUpgradable("bishop");
             if (target != null)
-            {
                 FakeUpgrade(target);
-                Debug.Log("[AI BOSS] Phase 0 Warm-up: Knight/Bishop upgraded");
-            }
         }
     }
 
     private void Phase1()
     {
-        // Upgrade the pawn that moved last turn
         if (lastMovedPawn != null && lastMovedPawn.tier < 2 && Random.value < pawnUpgradeChance)
             FakeUpgrade(lastMovedPawn);
 
-        // Rage: if lost any pawns → chance to max all existing Tier 2 pawns to Tier 3
         if (blackPawnsLost >= 1 && Random.value < massPawnMaxChance)
         {
-            bool didUpgrade = false;
             foreach (Chessman pawn in GetBlackPawns())
             {
                 if (pawn.tier == 2)
-                {
-                    FakeUpgrade(pawn);  // 2 → 3 only
-                    didUpgrade = true;
-                }
+                    FakeUpgrade(pawn);
             }
-
-            if (didUpgrade)
-                Debug.Log("[AI BOSS] Lost pawns → All Tier 2 pawns promoted to Tier 3!");
         }
     }
 
@@ -112,7 +108,6 @@ public class AI_TierBossSystem : MonoBehaviour
 
     private void Phase3()
     {
-        // Queen has highest priority
         Chessman queen = FindPiece("queen");
         if (queen != null && queen.tier < 3 && Random.value < queenUpgradePriority)
         {
@@ -120,7 +115,6 @@ public class AI_TierBossSystem : MonoBehaviour
             return;
         }
 
-        // Then officers
         Chessman officer = FindUpgradable("rook") ?? FindUpgradable("knight") ?? FindUpgradable("bishop");
         if (officer != null)
         {
@@ -128,27 +122,20 @@ public class AI_TierBossSystem : MonoBehaviour
             return;
         }
 
-        // Last: pawn
         FakeUpgradeRandomPawn();
     }
 
-    // SAFE UPGRADE — uses your existing button system
     private void FakeUpgrade(Chessman piece)
     {
         if (piece == null || piece.tier >= 3 || piece.name.Contains("king")) return;
-
         tierManager.UpgradePieceByAI(piece);
     }
 
     private void FakeUpgradeRandomPawn()
     {
         var pawns = GetUpgradable("pawn");
-        if (pawns.Count > 0) FakeUpgrade(pawns[Random.Range(0, pawns.Count)]);
-    }
-
-    private void LogBlackUpgrade()
-    {
-        gameLog?.LogMessage("Black upgraded a piece.");
+        if (pawns.Count > 0)
+            FakeUpgrade(pawns[Random.Range(0, pawns.Count)]);
     }
 
     private void UpdateLossCounters()
@@ -160,38 +147,29 @@ public class AI_TierBossSystem : MonoBehaviour
 
     private int CountTier2PlusOfficers()
     {
-        // We only count Tier 2+ officers that are DEFEATED/CAPTURED
         int expected = 6;
-        int currentCount = 
-        GetBlackPieces("knight").Count +
-        GetBlackPieces("bishop").Count +
-        GetBlackPieces("rook").Count;
+        int currentCount = GetBlackPieces("knight").Count + GetBlackPieces("bishop").Count + GetBlackPieces("rook").Count;
 
         int missingOfficers = expected - currentCount;
-
-        // Now check how many of the missing ones were Tier 2+
         int lostTier2Plus = 0;
 
         if (missingOfficers > 0)
         {
-            // Count current Tier 2+ officers
             int currentTier2Plus = 0;
             foreach (Chessman p in GetBlackPieces("knight")) if (p.tier >= 2) currentTier2Plus++;
             foreach (Chessman p in GetBlackPieces("bishop")) if (p.tier >= 2) currentTier2Plus++;
-            foreach (Chessman p in GetBlackPieces("rook"))   if (p.tier >= 2) currentTier2Plus++;
+            foreach (Chessman p in GetBlackPieces("rook")) if (p.tier >= 2) currentTier2Plus++;
 
-            // If we started with 6 officers — if we have Tier 2+ now, but lost officers,
-            // then at least one lost was Tier 2+
-            if (currentTier2Plus > 0 && missingOfficers >= 1)
-                lostTier2Plus = 1; // conservative: only count 1
+            if (currentTier2Plus > 0)
+                lostTier2Plus = 1;
         }
 
         return lostTier2Plus;
     }
 
-    // Helper
     private List<Chessman> GetBlackPawns() => GetBlackPieces("pawn");
     private List<Chessman> GetBlackPieces(string type) => GetPieces("b_", type);
+
     private List<Chessman> GetPieces(string prefix, string type)
     {
         List<Chessman> list = new List<Chessman>();
@@ -214,9 +192,25 @@ public class AI_TierBossSystem : MonoBehaviour
         return list;
     }
 
-    private Chessman FindUpgradable(string type) => GetUpgradable(type).Count > 0 ? GetUpgradable(type)[0] : null;
-    private Chessman FindPiece(string type) => GetBlackPieces(type).Count > 0 ? GetBlackPieces(type)[0] : null;
+    private Chessman FindUpgradable(string type)
+    {
+        var list = GetUpgradable(type);
+        return list.Count > 0 ? list[0] : null;
+    }
 
-    public void OnBlackPawnMoved(Chessman pawn) => lastMovedPawn = pawn;
-    public void ResetForNextTurn() => enabled = true;
+    private Chessman FindPiece(string type)
+    {
+        var list = GetBlackPieces(type);
+        return list.Count > 0 ? list[0] : null;
+    }
+
+    public void OnBlackPawnMoved(Chessman pawn)
+    {
+        lastMovedPawn = pawn;
+    }
+
+    public void ResetForNextTurn()
+    {
+        enabled = true;
+    }
 }

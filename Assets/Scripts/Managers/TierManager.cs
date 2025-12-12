@@ -15,6 +15,9 @@ public class TierManager : MonoBehaviour
     private int blackTokens = 32;
     private Chessman selectedPiece;
 
+    [Header("Visual Settings")]
+    public bool showTierMarks = true; // Toggle this in the Inspector for AI
+
     private void Awake()
     {
         if (Instance != null && Instance != this) { Destroy(gameObject); return; }
@@ -77,6 +80,7 @@ public class TierManager : MonoBehaviour
 
     public void DeselectPiece()
     {
+        if (showTierMarks == false)
         if (selectedPiece != null)
             ClearTierMark(selectedPiece);
 
@@ -169,18 +173,6 @@ public class TierManager : MonoBehaviour
 
     public void UpdateTokenDisplay()
     {
-        // Try LAN mode first
-        var lanManager = Object.FindFirstObjectByType<LANGameManager>();
-        if (lanManager != null)
-        {
-            string currentPlayer = PlayerController.LocalPlayer?.playerColorName ?? "white";
-            int tokens = currentPlayer == "white" ? whiteTokens : blackTokens;
-            if (tokenNumberText != null)
-                tokenNumberText.text = tokens.ToString();
-            return;
-        }
-
-        // Fallback to single-player (old way)
         var game = Object.FindFirstObjectByType<Game>();
         if (game != null && tokenNumberText != null)
         {
@@ -214,7 +206,10 @@ public class TierManager : MonoBehaviour
         if (piece == null || piece.tier >= 3 || piece.name.Contains("king")) return;
 
         piece.tier++;
-        ShowTierMark(piece);
+
+        if (showTierMarks)
+            ShowTierMark(piece); // Only show if toggle is on
+
         GameLog gl = FindFirstObjectByType<GameLog>();
         gl?.LogMessage("Black upgraded a piece.");
     }

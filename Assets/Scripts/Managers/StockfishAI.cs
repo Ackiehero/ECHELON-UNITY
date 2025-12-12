@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 public class StockfishAI : MonoBehaviour
 {
     public static StockfishAI Instance;
+
+    [Header("Stockfish Settings")]
     public int searchDepth = 14;
     public int skillLevel = 18;
     public bool showThinking = true;
@@ -17,7 +19,11 @@ public class StockfishAI : MonoBehaviour
 
     private void Awake()
     {
-        if (Instance != null) { Destroy(gameObject); return; }
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
         Instance = this;
         DontDestroyOnLoad(gameObject);
         StartStockfish();
@@ -25,14 +31,11 @@ public class StockfishAI : MonoBehaviour
 
     private void StartStockfish()
     {
-        string exePath = GetStockfishPath();
+        string exePath = GetStockfishExecutablePath();
 
         if (string.IsNullOrEmpty(exePath) || !File.Exists(exePath))
         {
-            UnityEngine.Debug.LogError("STOCKFISH NOT FOUND!\n" +
-                "You must have these TWO files with EXACT names:\n" +
-                "Assets/StreamingAssets/Stockfish/stockfish-pc.exe     ← for Windows/PC\n" +
-                "Assets/StreamingAssets/Stockfish/stockfish-mobile     ← for Android/iOS (no .exe)");
+            UnityEngine.Debug.LogError($"STOCKFISH NOT FOUND at: {exePath}");
             enabled = false;
             return;
         }
@@ -56,59 +59,104 @@ public class StockfishAI : MonoBehaviour
             SendCommand($"setoption name Skill Level value {skillLevel}");
             SendCommand("isready");
 
-            UnityEngine.Debug.Log($"Stockfish STARTED successfully: {Path.GetFileName(exePath)}");
+            UnityEngine.Debug.Log("Stockfish STARTED! Platform: " + Application.platform);
         }
         catch (System.Exception e)
         {
-            UnityEngine.Debug.LogError("Failed to launch Stockfish: " + e.Message);
+            UnityEngine.Debug.LogError("Failed to start Stockfish: " + e.Message);
+            enabled = false;
         }
     }
 
-    private string GetStockfishPath()
+    private string GetStockfishExecutablePath()
     {
-        string folder = Path.Combine(Application.streamingAssetsPath, "Stockfish");
-
-#if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
-        return Path.Combine(folder, "stockfish-pc.exe");
-
+#if UNITY_EDITOR || UNITY_STANDALONE
+        // PC/Editor
+        return Path.Combine(Application.streamingAssetsPath, "Stockfish", "stockfish.exe");
 #else
-        // Android / iOS
-        string mobilePath = Path.Combine(Application.persistentDataPath, "stockfish-mobile");
-        if (!File.Exists(mobilePath))
+        // ANDROID: Extract from StreamingAssets → persistentDataPath + chmod
+        string finalPath = Path.Combine(Application.persistentDataPath, "stockfish");
+
+        if (!File.Exists(finalPath))
         {
-            string source = Path.Combine(folder, "stockfish-mobile");
-            if (File.Exists(source))
-                File.Copy(source, mobilePath);
+            string assetPath = Path.Combine(Application.streamingAssetsPath, "Stockfish/stockfish-android-armv8");
+
+            WWW www = new WWW(assetPath);
+            while (!www.isDone) { } // Wait
+
+            if (!string.IsNullOrEmpty(www.error))
+            {
+                UnityEngine.Debug.LogError("Failed to read Stockfish from APK: " + www.error);
+                return null;
+            }
+
+            File.WriteAllBytes(finalPath, www.bytes);
+            UnityEngine.Debug.Log("Stockfish extracted to: " + finalPath);
+
+            // Make executable
+            try
+            {
+                var chmod = new Process();
+                chmod.StartInfo.FileName = "/system/bin/chmod";
+                chmod.StartInfo.Arguments = "755 " + finalPath;
+                chmod.StartInfo.UseShellExecute = false;
+                chmod.StartInfo.CreateNoWindow = true;
+                chmod.Start();
+                chmod.WaitForExit();
+                UnityEngine.Debug.Log("chmod 755 applied");
+            }
+            catch { }
         }
-        return File.Exists(mobilePath) ? mobilePath : null;
+
+        return finalPath;
 #endif
     }
 
     public async void MakeMove(string fen, System.Action<string> onMoveFound)
     {
-        if (isThinking || stockfishProcess == null || stockfishProcess.HasExited) return;
+        if (isThinking || stockfishProcess == null || stockfishProcess.HasExited) 
+        {
+            onMoveFound?.Invoke("e7e5");
+            return;
+        }
+
         isThinking = true;
         if (showThinking) FindFirstObjectByType<GameLog>()?.LogMessage("AI thinking...");
 
         SendCommand("position fen " + fen);
         SendCommand($"go depth {searchDepth}");
 
-        string line = await ReadLineContaining("bestmove");
+        string bestMove = await ReadBestMove();
         isThinking = false;
-
-        if (line != null) onMoveFound?.Invoke(line);
+        onMoveFound?.Invoke(bestMove ?? "e7e5");
     }
 
-    private async Task<string> ReadLineContaining(string keyword)
+    private async Task<string> ReadBestMove()
     {
+        string bestMove = null;
         string line;
+
         while ((line = await outputReader.ReadLineAsync()) != null)
-            if (line.Contains(keyword))
-                return line.Split(' ')[1];
-        return null;
+        {
+            if (line.Contains("bestmove"))
+            {
+                bestMove = line.Split(' ')[1];
+                break;
+            }
+        }
+
+        // Consume all remaining lines to prevent blocking
+        while (outputReader.Peek() >= 0)
+            await outputReader.ReadLineAsync();
+
+        return bestMove;
     }
 
-    private void SendCommand(string cmd) => inputWriter?.WriteLine(cmd);
+    private void SendCommand(string cmd)
+    {
+        inputWriter?.WriteLine(cmd);
+        inputWriter?.Flush();
+    }
 
     private void OnDestroy()
     {
