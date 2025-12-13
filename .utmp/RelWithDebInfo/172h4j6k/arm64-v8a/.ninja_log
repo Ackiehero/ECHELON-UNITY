@@ -1,23 +1,23 @@
 # ninja log v5
-19	3508	7842739368812242	GameActivity/CMakeFiles/game.dir/UGAApplication.cpp.o	ec6134195bfecf0e
-100	865	7842739342219267	FramePacing/CMakeFiles/swappywrapper.dir/UnitySwappyWrapper.cpp.o	c7230c61b2f60f75
-10	2985	7842739363521016	GameActivity/CMakeFiles/game.dir/UGADebug.cpp.o	6dabc92e2fd76ff2
-78	2895	7842739362603181	GameActivity/CMakeFiles/game.dir/UGAInputMotionEvent.cpp.o	ae1315b0c936ff8
-870	1403	7842739347430214	C:/Users/Personal Computer/Echelon Tier Chess/Library/Bee/Android/Prj/IL2CPP/Gradle/unityLibrary/build/intermediates/cxx/RelWithDebInfo/172h4j6k/obj/arm64-v8a/libswappywrapper.so	d35939ec04897c97
-30	2767	7842739361307771	GameActivity/CMakeFiles/game.dir/UGAInputKeyEvent.cpp.o	e55282ff353821b6
-53	2840	7842739361692133	GameActivity/CMakeFiles/game.dir/UGAEntry.cpp.o	26c503b21ad7c570
-65	3394	7842739367644411	GameActivity/CMakeFiles/game.dir/UGASoftKeyboard.cpp.o	b3bf12feec88b725
-1	2873	7842739362359803	GameActivity/CMakeFiles/game.dir/UGAConfiguration.cpp.o	612f15a554b39d74
-41	3381	7842739367504826	GameActivity/CMakeFiles/game.dir/UGAInput.cpp.o	168d6c1787ae038a
-3509	3651	7842739370312073	C:/Users/Personal Computer/Echelon Tier Chess/Library/Bee/Android/Prj/IL2CPP/Gradle/unityLibrary/build/intermediates/cxx/RelWithDebInfo/172h4j6k/obj/arm64-v8a/libgame.so	4acea7650baf011f
+51	4055	7870902594602161	GameActivity/CMakeFiles/game.dir/UGAApplication.cpp.o	ec6134195bfecf0e
 127	1184	7870902565611630	FramePacing/CMakeFiles/swappywrapper.dir/UnitySwappyWrapper.cpp.o	c7230c61b2f60f75
 1186	1919	7870902572311874	C:/Users/Personal Computer/Echelon Tier Chess/Library/Bee/Android/Prj/IL2CPP/Gradle/unityLibrary/build/intermediates/cxx/RelWithDebInfo/172h4j6k/obj/arm64-v8a/libswappywrapper.so	d35939ec04897c97
-74	3282	7870902586995966	GameActivity/CMakeFiles/game.dir/UGAInputKeyEvent.cpp.o	e55282ff353821b6
-30	3447	7870902588675925	GameActivity/CMakeFiles/game.dir/UGADebug.cpp.o	6dabc92e2fd76ff2
-40	3562	7870902589620137	GameActivity/CMakeFiles/game.dir/UGAConfiguration.cpp.o	612f15a554b39d74
-19	3600	7870902590120212	GameActivity/CMakeFiles/game.dir/UGAEntry.cpp.o	26c503b21ad7c570
 62	3626	7870902590160748	GameActivity/CMakeFiles/game.dir/UGAInputMotionEvent.cpp.o	ae1315b0c936ff8
+30	3447	7870902588675925	GameActivity/CMakeFiles/game.dir/UGADebug.cpp.o	6dabc92e2fd76ff2
+74	3282	7870902586995966	GameActivity/CMakeFiles/game.dir/UGAInputKeyEvent.cpp.o	e55282ff353821b6
+19	3600	7870902590120212	GameActivity/CMakeFiles/game.dir/UGAEntry.cpp.o	26c503b21ad7c570
+40	3562	7870902589620137	GameActivity/CMakeFiles/game.dir/UGAConfiguration.cpp.o	612f15a554b39d74
 110	3802	7870902592300512	GameActivity/CMakeFiles/game.dir/UGASoftKeyboard.cpp.o	b3bf12feec88b725
 90	3976	7870902594046689	GameActivity/CMakeFiles/game.dir/UGAInput.cpp.o	168d6c1787ae038a
-51	4055	7870902594602161	GameActivity/CMakeFiles/game.dir/UGAApplication.cpp.o	ec6134195bfecf0e
 4055	4184	7870902596171715	C:/Users/Personal Computer/Echelon Tier Chess/Library/Bee/Android/Prj/IL2CPP/Gradle/unityLibrary/build/intermediates/cxx/RelWithDebInfo/172h4j6k/obj/arm64-v8a/libgame.so	4acea7650baf011f
+86	661	7873112833349425	FramePacing/CMakeFiles/swappywrapper.dir/UnitySwappyWrapper.cpp.o	c7230c61b2f60f75
+662	1101	7873112837207130	C:/Users/Personal Computer/Echelon Tier Chess/Library/Bee/Android/Prj/IL2CPP/Gradle/unityLibrary/build/intermediates/cxx/RelWithDebInfo/172h4j6k/obj/arm64-v8a/libswappywrapper.so	d35939ec04897c97
+65	2538	7873112852243789	GameActivity/CMakeFiles/game.dir/UGAInputKeyEvent.cpp.o	e55282ff353821b6
+32	2559	7873112852478301	GameActivity/CMakeFiles/game.dir/UGAEntry.cpp.o	26c503b21ad7c570
+17	2602	7873112852918143	GameActivity/CMakeFiles/game.dir/UGAConfiguration.cpp.o	612f15a554b39d74
+56	2628	7873112853173227	GameActivity/CMakeFiles/game.dir/UGAInputMotionEvent.cpp.o	ae1315b0c936ff8
+25	2697	7873112853882180	GameActivity/CMakeFiles/game.dir/UGADebug.cpp.o	6dabc92e2fd76ff2
+75	2901	7873112855937822	GameActivity/CMakeFiles/game.dir/UGASoftKeyboard.cpp.o	b3bf12feec88b725
+47	2919	7873112856146529	GameActivity/CMakeFiles/game.dir/UGAInput.cpp.o	168d6c1787ae038a
+39	3041	7873112857315415	GameActivity/CMakeFiles/game.dir/UGAApplication.cpp.o	ec6134195bfecf0e
+3041	3162	7873112858570089	C:/Users/Personal Computer/Echelon Tier Chess/Library/Bee/Android/Prj/IL2CPP/Gradle/unityLibrary/build/intermediates/cxx/RelWithDebInfo/172h4j6k/obj/arm64-v8a/libgame.so	4acea7650baf011f

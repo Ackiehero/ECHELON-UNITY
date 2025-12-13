@@ -32,14 +32,14 @@ public class AI_TierBossSystem : MonoBehaviour
     void Update()
     {
         if (game == null) return;
-        if (StockfishAI.Instance == null) return;  // make sure the singleton is ready
+        if (Stockfish_API.Instance == null) return;  // make sure the singleton is ready
 
         if (game.IsGameOver) return;
 
         string currentPlayer = game.GetCurrentPlayer();
         if (string.IsNullOrEmpty(currentPlayer)) return;
 
-        if (currentPlayer != "black" || StockfishAI.Instance.isThinking)
+        if (currentPlayer != "black" || Stockfish_API.Instance.isThinking)
             return;
         
         RunBossPhase();

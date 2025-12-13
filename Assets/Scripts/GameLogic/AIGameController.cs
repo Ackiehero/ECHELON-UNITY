@@ -49,7 +49,7 @@ public class AIGameController : MonoBehaviour
         DestroyAllMovePlates();
 
         string fen = FENGenerator.GenerateFEN(game);
-        StockfishAI.Instance.MakeMove(fen, OnAIMoveReceived);
+        Stockfish_API.Instance.MakeMove(fen, OnAIMoveReceived);
     }
 
     private void OnAIMoveReceived(string uci)
