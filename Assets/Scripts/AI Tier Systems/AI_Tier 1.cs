@@ -22,6 +22,8 @@ public class AI_TierBossSystem : MonoBehaviour
     private enum BossPhase { Phase1, Phase2, Phase3 }
     private BossPhase currentPhase = BossPhase.Phase1;
 
+    private bool hasRunThisTurn = false;
+
     void Awake()
     {
         game = FindFirstObjectByType<Game>();
@@ -31,19 +33,23 @@ public class AI_TierBossSystem : MonoBehaviour
 
     void Update()
     {
-        if (game == null) return;
-        if (Stockfish_API.Instance == null) return;  // make sure the singleton is ready
-
-        if (game.IsGameOver) return;
+        if (game == null || game.IsGameOver || Stockfish_API.Instance == null) return;
 
         string currentPlayer = game.GetCurrentPlayer();
-        if (string.IsNullOrEmpty(currentPlayer)) return;
 
-        if (currentPlayer != "black" || Stockfish_API.Instance.isThinking)
+        if (currentPlayer != "black")
+        {
+            hasRunThisTurn = false;
             return;
-        
-        RunBossPhase();
-        enabled = false;
+        }
+
+        if (Stockfish_API.Instance.isThinking) return;
+
+        if (!hasRunThisTurn)
+        {
+            RunBossPhase();
+            hasRunThisTurn = true;
+        }
     }
 
     private void RunBossPhase()
@@ -128,7 +134,7 @@ public class AI_TierBossSystem : MonoBehaviour
     private void FakeUpgrade(Chessman piece)
     {
         if (piece == null || piece.tier >= 3 || piece.name.Contains("king")) return;
-        tierManager.UpgradePieceByAI(piece);
+        tierManager?.UpgradePieceByAI(piece);  // Added null-conditional for safety
     }
 
     private void FakeUpgradeRandomPawn()
@@ -208,9 +214,9 @@ public class AI_TierBossSystem : MonoBehaviour
     {
         lastMovedPawn = pawn;
     }
-
+    
     public void ResetForNextTurn()
     {
-        enabled = true;
+        enabled = true;  // ← Re-enable so it can run again next turn
     }
 }

@@ -126,6 +126,13 @@ public class Stockfish_API : MonoBehaviour
         // 2️⃣ Trigger move prep
         piece.InitiateMove();
 
+        // 🔹 NEW: Force castling plates for kings (AI-only)
+        if (piece.name.Contains("king"))
+        {
+            CastlingManager castle = UnityEngine.Object.FindFirstObjectByType<CastlingManager>();
+            castle?.ShowCastlePlates(piece);
+        }
+
         // 3️⃣ Execute move via MovePlate
         MovePlate targetPlate = null;
         foreach (MovePlate plate in FindObjectsByType<MovePlate>(FindObjectsSortMode.None))

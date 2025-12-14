@@ -164,9 +164,20 @@ public class Chessman : MonoBehaviour
                 break;
             case "b_king":
             case "w_king":
-                SurroundMovePlate();
+                if (this.name.Contains("king"))
+                {
+                    KingSafetyManager ksm = FindFirstObjectByType<KingSafetyManager>();
+                    if (ksm != null)
+                    {
+                        ksm.GenerateSafeKingMoves(this);
+                    }
+                }
+                else
+                {
+                    SurroundMovePlate();
+                }
+                
                 FindFirstObjectByType<CastlingManager>()?.ShowCastlePlates(this);
-                FindFirstObjectByType<CastlingSafetyManager>()?.TryShowSafeCastlePlates(this);
                 break;
             case "b_rook":
             case "w_rook":
@@ -364,5 +375,60 @@ public class Chessman : MonoBehaviour
     {
         DestroyMovePlates();
         InitiateMoveplates();
+    }
+
+    // KingSafetymanager signals
+    public bool WouldAttack(int targetX, int targetY, int fromX, int fromY)
+    {
+        // Simulate attack logic without spawning plates
+        int dx = targetX - fromX;
+        int dy = targetY - fromY;
+
+        switch (name.Replace("w_", "").Replace("b_", ""))
+        {
+            case "pawn":
+                int direction = player == "white" ? 1 : -1;
+                return Mathf.Abs(dx) == 1 && dy == direction;
+
+            case "knight":
+                return (Mathf.Abs(dx) == 1 && Mathf.Abs(dy) == 2) ||
+                    (Mathf.Abs(dx) == 2 && Mathf.Abs(dy) == 1);
+
+            case "bishop":
+                if (Mathf.Abs(dx) != Mathf.Abs(dy)) return false;
+                return LineOfSightClear(fromX, fromY, targetX, targetY);
+
+            case "rook":
+                if (dx != 0 && dy != 0) return false;
+                return LineOfSightClear(fromX, fromY, targetX, targetY);
+
+            case "queen":
+                if (dx != 0 && dy != 0 && Mathf.Abs(dx) != Mathf.Abs(dy)) return false;
+                return LineOfSightClear(fromX, fromY, targetX, targetY);
+
+            case "king":
+                return Mathf.Abs(dx) <= 1 && Mathf.Abs(dy) <= 1;
+
+            default:
+                return false;
+        }
+    }
+
+    private bool LineOfSightClear(int fromX, int fromY, int toX, int toY)
+    {
+        int dx = (int)Mathf.Sign(toX - fromX);
+        int dy = (int)Mathf.Sign(toY - fromY);
+        int steps = Mathf.Max(Mathf.Abs(toX - fromX), Mathf.Abs(toY - fromY));
+
+        if (dx == 0 && dy == 0) return true; // same square (shouldn't happen)
+
+        for (int i = 1; i < steps; i++)
+        {
+            int checkX = fromX + i * dx;
+            int checkY = fromY + i * dy;
+            if (FindFirstObjectByType<Game>().GetPosition(checkX, checkY) != null)
+                return false;
+        }
+        return true;
     }
 }

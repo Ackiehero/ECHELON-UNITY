@@ -1,5 +1,5 @@
-// FENGenerator.cs
 using UnityEngine;
+using System.Reflection;
 
 public static class FENGenerator
 {
@@ -8,7 +8,7 @@ public static class FENGenerator
         string fen = "";
         GameObject[,] positions = GetPositions(game);
 
-        // Board
+        // Board layout
         for (int y = 7; y >= 0; y--)
         {
             int empty = 0;
@@ -23,44 +23,67 @@ public static class FENGenerator
                 {
                     if (empty > 0) { fen += empty; empty = 0; }
                     string piece = p.name;
-                    char fenChar = PieceToFEN(piece);
-                    fen += fenChar;
+                    fen += PieceToFEN(piece);
                 }
             }
             if (empty > 0) fen += empty;
             if (y > 0) fen += "/";
         }
 
+        // Current player
         fen += " " + (game.GetCurrentPlayer() == "white" ? "w" : "b");
-        fen += " KQkq - 0 1"; // Castling & en passant simplified
+
+        // Castling rights
+        string castling = GetCastlingRights();
+        fen += " " + castling;
+
+        // En passant placeholder (still simplified)
+        fen += " -";
+
+        // Halfmove clock and fullmove number (simplified, can expand later)
+        fen += " 0 1";
 
         return fen;
     }
 
     private static GameObject[,] GetPositions(Game game)
     {
-        System.Reflection.FieldInfo field = game.GetType().GetField("positions",
-            System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+        FieldInfo field = game.GetType().GetField("positions",
+            BindingFlags.NonPublic | BindingFlags.Instance);
         return (GameObject[,])field.GetValue(game);
     }
 
-    private static char PieceToFEN(string name)
+    private static string PieceToFEN(string name)
     {
         return name switch
         {
-            "w_king" => 'K',
-            "w_queen" => 'Q',
-            "w_rook" => 'R',
-            "w_bishop" => 'B',
-            "w_knight" => 'N',
-            "w_pawn" => 'P',
-            "b_king" => 'k',
-            "b_queen" => 'q',
-            "b_rook" => 'r',
-            "b_bishop" => 'b',
-            "b_knight" => 'n',
-            "b_pawn" => 'p',
-            _ => '?'
+            "w_king" => "K",
+            "w_queen" => "Q",
+            "w_rook" => "R",
+            "w_bishop" => "B",
+            "w_knight" => "N",
+            "w_pawn" => "P",
+            "b_king" => "k",
+            "b_queen" => "q",
+            "b_rook" => "r",
+            "b_bishop" => "b",
+            "b_knight" => "n",
+            "b_pawn" => "p",
+            _ => "?"
         };
+    }
+
+    private static string GetCastlingRights()
+    {
+        CastlingManager cm = Object.FindFirstObjectByType<CastlingManager>();
+        if (cm == null) return "-";
+
+        string rights = "";
+        if (cm.whiteKingside) rights += "K";
+        if (cm.whiteQueenside) rights += "Q";
+        if (cm.blackKingside) rights += "k";
+        if (cm.blackQueenside) rights += "q";
+
+        return rights.Length > 0 ? rights : "-";
     }
 }
